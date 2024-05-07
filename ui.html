@@ -1,18 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-  <link rel="stylesheet" href="./index.css">
-</head>
 <body>
   <div class="pageContainer">
     <div class="content">
-      <form id="jsonForm">
-        <textarea id="jsonInput" rows="10" cols="4 0"  placeholder='输入 josn 格式，例如 {"--gray-背景-页面": "rgba(249, 249, 251, 1)"}'></textarea>
+     
+        <textarea id="jsonInput" rows="10" cols="40"  placeholder='输入 josn 格式，例如 {"--gray-背景-页面": "rgba(249, 249, 251, 1)"}'></textarea>
         <button id="submitButton">提交</button>
-    </form>
+ 
   </div>
   <script>
     // 获取 textarea 输入框
@@ -21,12 +14,12 @@
     document.getElementById('submitButton').addEventListener('click', (ev) => {
         try {
             // 发送 JSON 数据给主线程
-            window.parent.postMessage({ colors: jsonData(JSON.parse(jsonInput.value)) }, '*')
+            parent.postMessage({ colors: JSON.parse(String(jsonInput.value))},'*')
         } catch (e) {
-            alert('Invalid JSON!')
+
+            alert(e)
         }
     });
 </script>
 </body>
-</html>
-<!DOCTYPE html>
+

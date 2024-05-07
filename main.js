@@ -2,41 +2,47 @@
 mg.showUI(__html__) // 用于展示插件用户界面
 
 mg.ui.onmessage = (msg) => {
-  // const colors = msg.data.colors;
-  console.log(msg) // { count: 3 }，假设用户在 input 框中输入数字 3
+  updateGlobalStyles(msg.colors)
 }
-//   updateGlobalStyles(colors)
-// };
 
-// function updateGlobalStyles(colors) {
-//   for (const key in colors) {
-//       if (colors.hasOwnProperty(key)) {
-//           // 创建填充样式
-//           const fillStyle = mg.createFillStyle({
-//               name: key,
-//               description: 'Generated from JSON input',
-//               paints: [{
-//                   type: 'SOLID',
-//                   color: parseColor(colors[key]), // 解析颜色字符串为 MasterGo 需要的颜色对象
-//                   visible: true
-//               }]
-//           });
+function parseRGBA(rgbaString) {
+  const match = rgbaString.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*(\d+(?:\.\d+)?)\)/);
+  if (match) {
+    // 将提取的字符串数值转换为 0 到 1 范围的浮点数
+    const red = parseInt(match[1], 10) / 255;
+    const green = parseInt(match[2], 10) / 255;
+    const blue = parseInt(match[3], 10) / 255;
+    const alpha = parseFloat(match[4]); // alpha 值本身就是在 0 到 1 的范围，因此不需要转换
+    // 返回调整后的颜色对象
+    return { r: red, g: green, b: blue, a: alpha };
+  }
+  return null;
+}
 
-//           console.log('Created fill style:', fillStyle);
-//       }
-//   }
-// }
+function updateGlobalStyles(colors) {
+  Object.entries(colors).forEach(([key, value]) => {
+    // 当前文档；
+    const node = mg.document;
+    //创建一个 paints
+    const myStyle = mg.createFillStyle({ id: node.id, name: 'paint' });
+    // 设置样式的名称
+    myStyle.name = key;
+    // 创建一个填充
+    const colorObject = parseRGBA(value)
+    const paints = [{
+      type: 'SOLID',
+      color: {
+        r: colorObject.r,
+        g: colorObject.g,
+        b: colorObject.b,
+        a: colorObject.a,
+      },
+      isVisible: true,
+      blendMode: "NORMAL"
+    }];
+    // 将该填充设置到刚刚创建的 Paint 样式上
+    myStyle.paints = paints;
+    console.log(`Created fill style: ${key} with color ${value}`);
 
-// function parseColor(colorStr) {
-//   const div = document.createElement('div');
-//   div.style.color = colorStr;
-//   document.body.appendChild(div);
-//   const rgb = window.getComputedStyle(div).color.match(/\d+/g).map(Number);
-//   document.body.removeChild(div);
-//   return {
-//       r: rgb[0] / 255,
-//       g: rgb[1] / 255,
-//       b: rgb[2] / 255,
-//       a: rgb.length > 3 ? rgb[3] / 255 : 1
-//   };
-// }
+  })
+}
